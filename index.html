@@ -1,95 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="p5.min.js"></script>
     <title>Document</title>
-</head>
-<body>
+  </head>
+  <body>
     <script>
-        const TAM_FORMA = 30;
+      const TAM_FORMA = 30;
 
-        const tri = Shape("tri");
-        const cir = Shape("cir");
-        const sqr = Shape("sqr");
+      const tri = Shape("tri");
+      const cir = Shape("cir");
+      const sqr = Shape("sqr");
 
-        function setup() {
-          createCanvas(400, 400);
-          colorMode(HSB, 360, 200, 200);
-          rectMode(CENTER);
+      let texto = "";
+      let followMouse = false;
+
+      function setup() {
+        createCanvas(400, 400);
+        colorMode(HSB, 360, 200, 200);
+        rectMode(CENTER);
+        textAlign(CENTER);
+        textSize(20);
+      }
+
+      function draw() {
+        background(230);
+        showGrid();
+        tri.x = lerp(tri.x, 300, 0.1);
+        tri.y = lerp(tri.y, 150, 0.1);
+        desenhaShape(tri);
+
+        sqr.x = lerp(sqr.x, 140, 0.1);
+        sqr.y = lerp(sqr.y, 110, 0.1);
+        desenhaShape(sqr);
+
+        cir.x = lerp(cir.x, 160, 0.1);
+        cir.y = lerp(cir.y, 280, 0.1);
+        desenhaShape(cir);
+
+        mostraTitulo();
+
+        if (followMouse) {
+          text(texto, mouseX, mouseY);
+        } else {
+          text(texto, 200, 200);
         }
 
-        function draw() {
-          background(230);
-          showGrid();
-          tri.x = lerp(tri.x, 300, 0.1);
-          tri.y = lerp(tri.y, 150, 0.1);
-          desenhaShape(tri);
-        
-          sqr.x = lerp(sqr.x, 140, 0.1);
-          sqr.y = lerp(sqr.y, 110, 0.1);
-          desenhaShape(sqr);
-        
-          cir.x = lerp(cir.x, 160, 0.1);
-          cir.y = lerp(cir.y, 280, 0.1);
-          desenhaShape(cir);
-        
-          if (frameCount > 40) {
-            sqr.scale = sin((frameCount - 40) / 10) + 1;
-            sqr.color[2] = 200;
-            sqr.color[1] = 200;
-            sqr.color[0] = (sqr.color[0] + 8) % 360;
-        
-            tri.color[2] = 200;
-            tri.rot += 0.1;
-        
-            cir.x += cos((frameCount - 40) / 4) * 10;
-            cir.y += sin((frameCount - 40) / 4) * 10;
-          }
+        if (frameCount > 40) {
+          sqr.scale = sin((frameCount - 40) / 10) + 1;
+          sqr.color[2] = 200;
+          sqr.color[1] = 200;
+          sqr.color[0] = (sqr.color[0] + 8) % 360;
+
+          tri.color[2] = 200;
+          tri.rot += 0.1;
+
+          cir.x += cos((frameCount - 40) / 4) * 10;
+          cir.y += sin((frameCount - 40) / 4) * 10;
+        }
+      }
+
+      function keyPressed() {
+        if (key.length == 1) {
+          texto += key;
+        } else if (key == "Backspace") {
+          texto = "";
+        }
+      }
+
+      function mouseClicked() {
+        followMouse = !followMouse;
+      }
+
+      function Shape(type) {
+        return { x: 200, y: 200, rot: 0, scale: 1, color: [0, 0, 0], type: type };
+      }
+
+      function showGrid() {
+        for (let i = 0; i <= width; i += 40) {
+          line(i, 0, i, height);
         }
 
-        function Shape(type) {
-          return { x: 200, y: 200, rot: 0, scale: 1, color: [0, 0, 0], type: type };
+        for (let i = 0; i <= height; i += 40) {
+          line(0, i, width, i);
         }
+      }
 
-        function showGrid() {
-          for (let i = 0; i <= width; i += 40) {
-            line(i, 0, i, height);
-          }
-      
-          for (let i = 0; i <= height; i += 40) {
-            line(0, i, width, i);
-          }
+      function desenharTri(x, y, s) {
+        triangle(x - s / sqrt(3), y + s / 3, x + s / sqrt(3), y + s / 3, x, y - (2 * s) / 3);
+      }
+
+      function desenhaShape(shape) {
+        push();
+        fill(shape.color);
+        translate(shape.x, shape.y);
+        rotate(shape.rot);
+
+        if (shape.type == "tri") {
+          desenharTri(0, 0, shape.scale * TAM_FORMA);
+        } else if (shape.type == "cir") {
+          circle(0, 0, TAM_FORMA * cir.scale);
+        } else if (shape.type == "sqr") {
+          square(0, 0, TAM_FORMA * sqr.scale);
         }
+        pop();
+      }
 
-        function desenharTri(x, y, s) {
-          triangle(
-            x - s / sqrt(3),
-            y + s / 3,
-            x + s / sqrt(3),
-            y + s / 3,
-            x,
-            y - (2 * s) / 3
-          );
-        }
-
-        function desenhaShape(shape) {
-          push();
-          fill(shape.color);
-          translate(shape.x, shape.y);
-          rotate(shape.rot);
-        
-          if (shape.type == "tri") {
-            desenharTri(0, 0, shape.scale * TAM_FORMA);
-          } else if (shape.type == "cir") {
-            circle(0, 0, TAM_FORMA * cir.scale);
-          } else if (shape.type == "sqr") {
-            square(0, 0, TAM_FORMA * sqr.scale);
-          }
-          pop();
-        }
-
+      function mostraTitulo() {
+        push();
+        textSize(20);
+        textStyle(BOLD);
+        fill((frameCount * 2) % 360, 170, 190);
+        text("Digite e clique para seguir!", 200, 50);
+        pop();
+      }
     </script>
-</body>
+  </body>
 </html>
